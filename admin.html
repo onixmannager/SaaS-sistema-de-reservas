@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Panel · Administración de reservas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0066F0;
+      --primary-light: #E5F0FF;
+      --primary-dark: #004bb5;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --gray-900: #111827;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --radius: 16px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--gray-100);
+      color: var(--gray-800);
+      line-height: 1.5;
+      padding: 16px 12px 32px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .admin-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .admin-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--gray-900);
+      line-height: 1.2;
+    }
+
+    .header-title p {
+      font-size: 14px;
+      color: var(--gray-500);
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      background: white;
+      border: 1px solid var(--gray-300);
+      color: var(--gray-700);
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-outline:hover {
+      background: var(--gray-100);
+    }
+
+    /* Estadísticas - móvil 2 columnas */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 18px 16px;
+      border-radius: 18px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--gray-500);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1.1;
+    }
+
+    /* Filtros */
+    .filters-bar {
+      background: white;
+      padding: 16px 18px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      background: var(--gray-100);
+      border-radius: 60px;
+      padding: 2px 2px 2px 18px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .search-wrapper input {
+      border: none;
+      background: transparent;
+      padding: 12px 0;
+      font-size: 15px;
+      width: 100%;
+      outline: none;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 500;
+      background: white;
+      border: 1px solid var(--gray-200);
+      cursor: pointer;
+      transition: all 0.1s;
+      color: var(--gray-600);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .filter-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    /* Tabla contenedor con scroll horizontal */
+    .reservations-table-wrapper {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-200);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 16px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--gray-500);
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid var(--gray-100);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--gray-50);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-confirmed {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .badge-cancelled {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .badge-pending {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      background: none;
+      border: 1px solid var(--gray-200);
+      border-radius: 30px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--gray-600);
+      transition: all 0.1s;
+      font-size: 16px;
+    }
+
+    .icon-btn:hover {
+      background: var(--gray-100);
+      border-color: var(--gray-300);
+    }
+
+    /* Estados vacíos / carga */
+    .empty-state {
+      text-align: center;
+      padding: 56px 20px;
+      color: var(--gray-500);
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 56px 20px;
+      color: var(--gray-500);
+    }
+
+    .text-muted { color: var(--gray-500); font-size: 13px; }
+    .mt-2 { margin-top: 8px; }
+    .hidden { display: none !important; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 28px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 30px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 26px;
+      cursor: pointer;
+      color: var(--gray-500);
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+    }
+
+    .form-row {
+      margin-bottom: 18px;
+    }
+
+    .form-row label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--gray-700);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 18px;
+      font-size: 15px;
+      font-family: var(--font-sans);
+      background: white;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .modal-footer {
+      padding: 20px 24px 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    /* Ajustes extra móvil */
+    @media (max-width: 480px) {
+      .header-title h1 {
+        font-size: 22px;
+      }
+      .btn {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+      .stat-value {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="admin-container">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-title">
+      <h1>📋 Panel de Administración</h1>
+      <p>Gestiona reservas, clientes y disponibilidad</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" id="refreshBtn" title="Actualizar">↻</button>
+      <button class="btn btn-primary" id="newReservationBtn">+ Nueva</button>
+    </div>
+  </header>
+
+  <!-- Estadísticas (2 columnas en móvil) -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total reservas</div>
+      <div class="stat-value" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Próximos 7d</div>
+      <div class="stat-value" id="statUpcoming">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Hoy</div>
+      <div class="stat-value" id="statToday">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Canceladas</div>
+      <div class="stat-value" id="statCancelled">—</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <input type="text" id="searchInput" placeholder="Buscar por nombre, email o servicio...">
+      <button class="btn btn-outline" style="border-radius:60px; margin-left:4px;" id="searchClearBtn" aria-label="Limpiar">✕</button>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">Todas</button>
+      <button class="filter-tab" data-filter="confirmed">Confirmadas</button>
+      <button class="filter-tab" data-filter="pending">Pendientes</button>
+      <button class="filter-tab" data-filter="cancelled">Canceladas</button>
+      <button class="filter-tab" data-filter="today">Hoy</button>
+      <button class="filter-tab" data-filter="week">Esta semana</button>
+    </div>
+  </div>
+
+  <!-- Tabla de reservas -->
+  <div class="reservations-table-wrapper">
+    <table id="reservationsTable">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Fecha / Hora</th>
+          <th>Contacto</th>
+          <th>Estado</th>
+          <th>Notas</th>
+          <th style="text-align:center;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="7" class="loading-state">Cargando reservas…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal para editar / nueva reserva -->
+<div class="modal-overlay hidden" id="reservationModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Editar reserva</h3>
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="reservationForm">
+        <input type="hidden" id="reservationId" value="">
+        <div class="form-row">
+          <label>Nombre completo *</label>
+          <input type="text" id="editName" class="form-control" required>
+        </div>
+        <div class="form-row">
+          <label>Email *</label>
+          <input type="email" id="editEmail" class="form-control" required>
+        </div>
+        <div class="form-row">
+          <label>Teléfono</label>
+          <input type="tel" id="editPhone" class="form-control">
+        </div>
+        <div class="form-row">
+          <label>Servicio *</label>
+          <select id="editService" class="form-control" required>
+            <!-- Opciones se cargarán desde API de configuración -->
+          </select>
+        </div>
+        <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div><label>Fecha *</label><input type="date" id="editDate" class="form-control" required></div>
+          <div><label>Hora *</label><input type="time" id="editTime" class="form-control" required></div>
+        </div>
+        <div class="form-row">
+          <label>Estado</label>
+          <select id="editStatus" class="form-control">
+            <option value="confirmed">Confirmada</option>
+            <option value="pending">Pendiente</option>
+            <option value="cancelled">Cancelada</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Notas</label>
+          <textarea id="editNotes" class="form-control" rows="2"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="cancelModalBtn">Cancelar</button>
+      <button class="btn btn-primary" id="saveReservationBtn">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación para cancelar -->
+<div class="modal-overlay hidden" id="cancelConfirmModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3>Cancelar reserva</h3>
+      <button class="modal-close" id="closeCancelModalBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>¿Estás seguro de que deseas cancelar esta reserva?</p>
+      <div class="form-row mt-2">
+        <label>Motivo (opcional)</label>
+        <input type="text" id="cancelReason" class="form-control" placeholder="Ej: El cliente no puede asistir">
+      </div>
+      <input type="hidden" id="cancelReservationId" value="">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="abortCancelBtn">No cancelar</button>
+      <button class="btn btn-primary" id="confirmCancelBtn" style="background:var(--error);border-color:var(--error);">Sí, cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ---------- ESTADO REAL (sin ejemplos) ----------
+    let reservationsData = [];           // Se llenará desde /api/admin/reservations
+    let servicesList = [];              // Cargado desde /api/config (servicios)
+    let isLoading = false;
+
+    // Referencias DOM
+    const tbody = document.getElementById('tableBody');
+    const searchInput = document.getElementById('searchInput');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const newReservationBtn = document.getElementById('newReservationBtn');
+    const modalOverlay = document.getElementById('reservationModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const saveReservationBtn = document.getElementById('saveReservationBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const reservationForm = document.getElementById('reservationForm');
+    const cancelConfirmModal = document.getElementById('cancelConfirmModal');
+    const closeCancelModalBtn = document.getElementById('closeCancelModalBtn');
+    const abortCancelBtn = document.getElementById('abortCancelBtn');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+    const editServiceSelect = document.getElementById('editService');
+    
+    // Estado de UI
+    let currentFilter = 'all';
+    let searchTerm = '';
+    let editingId = null;
+
+    // ---------- FUNCIONES DE API (conexión backend) ----------
+    async function fetchReservations() {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/admin/reservations');
+        if (!response.ok) throw new Error('Error al cargar reservas');
+        const data = await response.json();
+        reservationsData = data.reservations || [];
+      } catch (error) {
+        console.error('Error fetching reservations:', error);
+        reservationsData = [];
+        showEmptyState();
+      } finally {
+        renderTable();
+        setLoading(false);
+      }
+    }
+
+    async function fetchServices() {
+      try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const config = await res.json();
+          servicesList = config.services || [];
+          populateServiceOptions();
+        }
+      } catch (e) {
+        // Fallback silencioso
+        console.warn('No se pudo cargar la configuración de servicios');
+      }
+    }
+
+    function populateServiceOptions() {
+      if (!editServiceSelect) return;
+      let html = '';
+      servicesList.forEach(svc => {
+        html += `<option value="${svc.id}">${svc.name} (${svc.duration} min)</option>`;
+      });
+      editServiceSelect.innerHTML = html || '<option value="">Cargando servicios…</option>';
+    }
+
+    function setLoading(loading) {
+      isLoading = loading;
+      if (loading) {
+        tbody.innerHTML = `<tr><td colspan="7" class="loading-state">Cargando reservas…</td></tr>`;
+      }
+    }
+
+    function showEmptyState() {
+      if (reservationsData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No hay reservas registradas.<br><span class="text-muted">Crea una nueva reserva con el botón "+ Nueva"</span></td></tr>`;
+      }
+    }
+
+    // ---------- FILTROS Y RENDERIZADO ----------
+    function filterReservations() {
+      let filtered = [...reservationsData];
+      
+      const todayStr = new Date().toISOString().slice(0,10);
+      const nextWeek = new Date(Date.now() + 7*86400000).toISOString().slice(0,10);
+      
+      if (currentFilter === 'confirmed') filtered = filtered.filter(r => r.status === 'confirmed');
+      else if (currentFilter === 'pending') filtered = filtered.filter(r => r.status === 'pending');
+      else if (currentFilter === 'cancelled') filtered = filtered.filter(r => r.status === 'cancelled');
+      else if (currentFilter === 'today') filtered = filtered.filter(r => r.date === todayStr);
+      else if (currentFilter === 'week') filtered = filtered.filter(r => r.date >= todayStr && r.date <= nextWeek);
+      
+      if (searchTerm.trim()) {
+        const term = searchTerm.trim().toLowerCase();
+        filtered = filtered.filter(r => 
+          r.name.toLowerCase().includes(term) || 
+          r.email.toLowerCase().includes(term) || 
+          r.serviceName?.toLowerCase().includes(term) ||
+          (r.phone && r.phone.includes(term))
+        );
+      }
+      
+      filtered.sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time));
+      return filtered;
+    }
+
+    function updateStats() {
+      const total = reservationsData.length;
+      const todayStr = new Date().toISOString().slice(0,10);
+      const upcoming = reservationsData.filter(r => r.status === 'confirmed' && r.date >= todayStr && r.date <= new Date(Date.now()+7*86400000).toISOString().slice(0,10)).length;
+      const todayCount = reservationsData.filter(r => r.date === todayStr && r.status !== 'cancelled').length;
+      const cancelled = reservationsData.filter(r => r.status === 'cancelled').length;
+      
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statUpcoming').textContent = upcoming;
+      document.getElementById('statToday').textContent = todayCount;
+      document.getElementById('statCancelled').textContent = cancelled;
+    }
+
+    function renderTable() {
+      if (isLoading) return;
+      
+      const filtered = filterReservations();
+      if (filtered.length === 0) {
+        if (reservationsData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No hay reservas registradas.<br><span class="text-muted">Crea una nueva reserva con el botón "+ Nueva"</span></td></tr>`;
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No hay resultados con los filtros actuales.</td></tr>`;
+        }
+        updateStats();
+        return;
+      }
+      
+      let html = '';
+      filtered.forEach(r => {
+        const statusBadge = {
+          confirmed: '<span class="badge badge-confirmed">Confirmada</span>',
+          pending: '<span class="badge badge-pending">Pendiente</span>',
+          cancelled: '<span class="badge badge-cancelled">Cancelada</span>'
+        }[r.status] || r.status;
+        
+        const formattedDate = r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+        
+        html += `<tr>
+          <td><strong>${r.name || '—'}</strong></td>
+          <td>${r.serviceName || '—'}</td>
+          <td>${formattedDate} · ${r.time || '—'}</td>
+          <td>${r.email || '—'}<br><span class="text-muted">${r.phone || ''}</span></td>
+          <td>${statusBadge}</td>
+          <td>${r.notes || '—'}</td>
+          <td style="text-align:center;">
+            <div class="action-buttons">
+              <button class="icon-btn edit-btn" data-id="${r.id}" title="Editar">✎</button>
+              <button class="icon-btn cancel-btn" data-id="${r.id}" title="Cancelar">✕</button>
+            </div>
+          </td>
+        </tr>`;
+      });
+      tbody.innerHTML = html;
+      
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+      });
+      document.querySelectorAll('.cancel-btn').forEach(btn => {
+        btn.addEventListener('click', () => openCancelConfirm(btn.dataset.id));
+      });
+      
+      updateStats();
+    }
+
+    // ---------- MODALES ----------
+    function openEditModal(id) {
+      const res = reservationsData.find(r => r.id === id);
+      if (!res) return;
+      editingId = id;
+      modalTitle.textContent = 'Editar reserva';
+      document.getElementById('reservationId').value = id;
+      document.getElementById('editName').value = res.name || '';
+      document.getElementById('editEmail').value = res.email || '';
+      document.getElementById('editPhone').value = res.phone || '';
+      document.getElementById('editService').value = res.serviceId || '';
+      document.getElementById('editDate').value = res.date || '';
+      document.getElementById('editTime').value = res.time || '';
+      document.getElementById('editStatus').value = res.status || 'confirmed';
+      document.getElementById('editNotes').value = res.notes || '';
+      modalOverlay.classList.remove('hidden');
+    }
+
+    function openNewReservationModal() {
+      editingId = null;
+      modalTitle.textContent = 'Nueva reserva';
+      document.getElementById('reservationId').value = '';
+      reservationForm.reset();
+      const today = new Date().toISOString().slice(0,10);
+      document.getElementById('editDate').value = today;
+      document.getElementById('editTime').value = '10:00';
+      document.getElementById('editStatus').value = 'confirmed';
+      modalOverlay.classList.remove('hidden');
+    }
+
+    async function saveReservation() {
+      const id = document.getElementById('reservationId').value;
+      const formData = {
+        name: document.getElementById('editName').value,
+        email: document.getElementById('editEmail').value,
+        phone: document.getElementById('editPhone').value,
+        serviceId: document.getElementById('editService').value,
+        date: document.getElementById('editDate').value,
+        time: document.getElementById('editTime').value,
+        status: document.getElementById('editStatus').value,
+        notes: document.getElementById('editNotes').value,
+      };
+      
+      if (!formData.name || !formData.email || !formData.date || !formData.time) {
+        alert('Completa los campos obligatorios');
+        return;
+      }
+      
+      const url = id ? `/api/admin/reservations/${id}` : '/api/admin/reservations';
+      const method = id ? 'PUT' : 'POST';
+      
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        if (!res.ok) throw new Error('Error al guardar');
+        await fetchReservations(); // recargar
+        modalOverlay.classList.add('hidden');
+      } catch (e) {
+        alert('Error al guardar la reserva. Intenta de nuevo.');
+      }
+    }
+
+    function openCancelConfirm(id) {
+      document.getElementById('cancelReservationId').value = id;
+      document.getElementById('cancelReason').value = '';
+      cancelConfirmModal.classList.remove('hidden');
+    }
+
+    async function confirmCancel() {
+      const id = document.getElementById('cancelReservationId').value;
+      const reason = document.getElementById('cancelReason').value;
+      try {
+        const res = await fetch(`/api/admin/reservations/${id}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        if (!res.ok) throw new Error('Error al cancelar');
+        await fetchReservations();
+        cancelConfirmModal.classList.add('hidden');
+      } catch (e) {
+        alert('No se pudo cancelar la reserva.');
+      }
+    }
+
+    // ---------- EVENT LISTENERS ----------
+    refreshBtn.addEventListener('click', fetchReservations);
+    newReservationBtn.addEventListener('click', openNewReservationModal);
+    
+    closeModalBtn.addEventListener('click', () => modalOverlay.classList.add('hidden'));
+    cancelModalBtn.addEventListener('click', () => modalOverlay.classList.add('hidden'));
+    saveReservationBtn.addEventListener('click', saveReservation);
+    
+    searchInput.addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      renderTable();
+    });
+    document.getElementById('searchClearBtn').addEventListener('click', () => {
+      searchInput.value = '';
+      searchTerm = '';
+      renderTable();
+    });
+    
+    filterTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        filterTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.filter;
+        renderTable();
+      });
+    });
+    
+    closeCancelModalBtn.addEventListener('click', () => cancelConfirmModal.classList.add('hidden'));
+    abortCancelBtn.addEventListener('click', () => cancelConfirmModal.classList.add('hidden'));
+    confirmCancelBtn.addEventListener('click', confirmCancel);
+    
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.add('hidden'); });
+    cancelConfirmModal.addEventListener('click', (e) => { if (e.target === cancelConfirmModal) cancelConfirmModal.classList.add('hidden'); });
+    
+    // Inicializar: cargar configuración y reservas
+    fetchServices();
+    fetchReservations();
+  })();
+</script>
+</body>
+</html>
