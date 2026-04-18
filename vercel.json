@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "api/[...route].js": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/api/[...route]"
+    },
+    {
+      "source": "/admin",
+      "destination": "/api/[...route]"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/[...route]"
+    }
+  ]
+}
