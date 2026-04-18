@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<!-- =============================================================================
+     🎨 FRONTEND — Página de reservas (estilo Calendly)
+     =============================================================================
+     Este HTML es GENÉRICO. Los textos, colores y datos del negocio se cargan
+     dinámicamente desde /api/config (que lee client.config.js).
+
+     ✏️  Puedes modificar la estructura visual libremente, pero mantén los IDs
+         porque son usados por /public/app.js
+     ========================================================================== -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reservas</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="container">
+    <!-- Header: se rellena con el nombre/tagline del negocio desde /api/config -->
+    <header class="header">
+      <h1 id="businessName">Cargando…</h1>
+      <p id="businessTagline" class="muted"></p>
+    </header>
+
+    <!-- Paso 1: Servicio (se oculta si solo hay uno o ninguno) -->
+    <section id="serviceStep" class="step hidden">
+      <h2 data-txt="selectService">Elige un servicio</h2>
+      <div id="serviceList" class="service-list"></div>
+    </section>
+
+    <!-- Paso 2: Fecha -->
+    <section class="step">
+      <h2 data-txt="selectDate">Elige un día</h2>
+      <div class="calendar" id="calendar"></div>
+    </section>
+
+    <!-- Paso 3: Hora -->
+    <section id="timeStep" class="step hidden">
+      <h2 data-txt="selectTime">Elige una hora</h2>
+      <div id="timeSlots" class="time-slots"></div>
+    </section>
+
+    <!-- Paso 4: Datos del cliente -->
+    <section id="detailsStep" class="step hidden">
+      <h2 data-txt="yourDetails">Tus datos</h2>
+      <form id="bookingForm" class="form">
+        <label><span data-txt="nameLabel">Nombre</span>
+          <input type="text" name="name" required />
+        </label>
+        <label><span data-txt="emailLabel">Email</span>
+          <input type="email" name="email" required />
+        </label>
+        <label id="phoneLabel"><span data-txt="phoneLabel">Teléfono</span>
+          <input type="tel" name="phone" />
+        </label>
+        <label id="notesLabel" class="hidden"><span data-txt="notesLabel">Notas</span>
+          <textarea name="notes" rows="2"></textarea>
+        </label>
+        <button type="submit" id="confirmBtn" data-txt="confirmButton">Confirmar reserva</button>
+      </form>
+    </section>
+
+    <!-- Mensaje de éxito/error -->
+    <section id="result" class="result hidden"></section>
+  </main>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
