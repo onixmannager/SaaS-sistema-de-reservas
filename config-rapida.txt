@@ -1,0 +1,68 @@
+# Cómo cambiar horario, calendario y duración de citas
+
+Todo está en la sección CONFIG de app.js. Solo editas estos tres bloques.
+
+---
+
+## 1. Horario y días disponibles
+
+En "schedule", los días con closed: true aparecen bloqueados en el calendario
+y no se pueden seleccionar.
+
+schedule: {
+  monday:    { start: "09:00", end: "18:00", closed: false },
+  tuesday:   { start: "09:00", end: "18:00", closed: false },
+  wednesday: { closed: true },   // miércoles cerrado
+  thursday:  { start: "09:00", end: "18:00", closed: false },
+  friday:    { start: "09:00", end: "15:00", closed: false },
+  saturday:  { closed: true },
+  sunday:    { closed: true },
+},
+
+
+---
+
+## 2. Duración de las citas
+
+La duración se define en cada servicio con "duration" (en minutos).
+Eso controla automáticamente los slots que aparecen en el calendario.
+
+Citas de 1 hora → slots: 09:00, 10:00, 11:00...
+{ id: "sv1", name: "Consulta estándar", duration: 60,  priceFormatted: "50 €", active: true }
+
+Citas de 30 minutos → slots: 09:00, 09:30, 10:00, 10:30...
+{ id: "sv2", name: "Consulta rápida",   duration: 30,  priceFormatted: "25 €", active: true }
+
+Citas de 15 minutos → slots: 09:00, 09:15, 09:30, 09:45...
+{ id: "sv3", name: "Seguimiento",       duration: 15,  priceFormatted: "15 €", active: true }
+
+Citas de 2 horas → slots: 09:00, 11:00, 13:00...
+{ id: "sv4", name: "Sesión intensiva",  duration: 120, priceFormatted: "90 €", active: true }
+
+
+---
+
+## 3. Días de antelación máxima
+
+Controla hasta cuántos días en el futuro puede reservar el cliente.
+
+booking: {
+  maxAdvanceDays: 30,  // solo puede reservar dentro del próximo mes
+},
+
+Ejemplos:
+  7  → solo la próxima semana
+  14 → dos semanas
+  30 → un mes
+  60 → dos meses
+
+
+---
+
+## Resumen rápido
+
+  closed: true         → bloquea ese día en el calendario
+  duration (minutos)   → controla los intervalos de los slots
+  maxAdvanceDays       → limita hasta dónde puede reservar el cliente
+
+Nada más que tocar.
