@@ -1,10 +1,55 @@
 // api/[...route].js
 // ============================================================
-// BACKEND API – SOLO RUTAS /api/*
+// BACKEND API – CONFIGURACIÓN INTERNA (sin config.js)
 // ============================================================
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { BUSINESS_CONFIG, SERVICES } from '../config.js';
+
+// ========== CONFIGURACIÓN POR DEFECTO (EDITABLE AQUÍ) ==========
+const DEFAULT_BUSINESS = {
+  name: "Mi Negocio",
+  tagline: "Reserva tu cita en segundos",
+  primaryColor: "#0066F0",
+  location: "Online · Google Meet",
+  schedule: {
+    monday:    { start: "09:00", end: "17:00", closed: false },
+    tuesday:   { start: "09:00", end: "17:00", closed: false },
+    wednesday: { start: "09:00", end: "17:00", closed: false },
+    thursday:  { start: "09:00", end: "17:00", closed: false },
+    friday:    { start: "09:00", end: "15:00", closed: false },
+    saturday:  { closed: true },
+    sunday:    { closed: true }
+  },
+  booking: {
+    slotDuration: 30,
+    minAdvanceHours: 1,
+    maxAdvanceDays: 60
+  },
+  notifications: {
+    adminEmail: "admin@tunegocio.com",
+    telegramChatId: "",
+    sendCustomerEmail: true
+  }
+};
+
+const DEFAULT_SERVICES = [
+  {
+    id: "sv1",
+    name: "Consultoría Express",
+    duration: 30,
+    priceFormatted: "Gratuita",
+    active: true,
+    order: 1
+  },
+  {
+    id: "sv2",
+    name: "Mentoría Completa",
+    duration: 60,
+    priceFormatted: "49 €",
+    active: true,
+    order: 2
+  }
+];
 
 // ========== INICIALIZACIÓN DE FIREBASE ==========
 const firebaseConfig = {
@@ -61,10 +106,10 @@ export default async function handler(req, res) {
   // GET /api/config
   if (req.method === 'GET' && route === '/config') {
     return res.json({
-      business: BUSINESS_CONFIG,
-      services: SERVICES.filter(s => s.active),
-      schedule: BUSINESS_CONFIG.schedule,
-      booking: BUSINESS_CONFIG.booking,
+      business: DEFAULT_BUSINESS,
+      services: DEFAULT_SERVICES.filter(s => s.active),
+      schedule: DEFAULT_BUSINESS.schedule,
+      booking: DEFAULT_BUSINESS.booking,
       ui: { locale: 'es', texts: {} }
     });
   }
@@ -76,12 +121,12 @@ export default async function handler(req, res) {
 
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const selectedDate = new Date(date);
-    const daySchedule = BUSINESS_CONFIG.schedule[dayNames[selectedDate.getDay()]] || { closed: true };
+    const daySchedule = DEFAULT_BUSINESS.schedule[dayNames[selectedDate.getDay()]] || { closed: true };
     if (daySchedule.closed) return res.json({ slots: [] });
 
-    let duration = BUSINESS_CONFIG.booking.slotDuration;
+    let duration = DEFAULT_BUSINESS.booking.slotDuration;
     if (service) {
-      const svc = SERVICES.find(s => s.id === service);
+      const svc = DEFAULT_SERVICES.find(s => s.id === service);
       if (svc) duration = svc.duration;
     }
 
@@ -113,7 +158,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ success: false, error: 'Faltan campos' });
     }
 
-    const service = SERVICES.find(s => s.id === serviceId);
+    const service = DEFAULT_SERVICES.find(s => s.id === serviceId);
     if (!service) return res.status(400).json({ success: false, error: 'Servicio no encontrado' });
 
     const duration = service.duration;
@@ -162,7 +207,7 @@ export default async function handler(req, res) {
         await resend.emails.send({
           from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
           to: [email],
-          subject: `✅ Reserva confirmada en ${BUSINESS_CONFIG.name}`,
+          subject: `✅ Reserva confirmada en ${DEFAULT_BUSINESS.name}`,
           html: `<h2>¡Gracias ${name}!</h2><p>Tu cita para ${service.name} el ${dateFormatted} a las ${startTime} está confirmada.</p>`
         });
       } catch (e) {
@@ -217,4 +262,4 @@ export default async function handler(req, res) {
 
   // Si no coincide con ninguna ruta API
   return res.status(404).json({ error: 'API route not found' });
-      }
+}
