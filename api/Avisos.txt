@@ -1,0 +1,140 @@
+CONFIGURACIÓN DE CANALES DE NOTIFICACIÓN
+=========================================
+
+
+═══════════════════════════════════════════
+ CANAL 1 — EMAIL AL NEGOCIO y AL CLIENTE
+ (usando Resend — gratis hasta 3000 emails/mes)
+═══════════════════════════════════════════
+
+PASO 1 — Crear cuenta en Resend
+  1. Ve a https://resend.com y crea una cuenta gratuita.
+  2. Una vez dentro ve a "API Keys" → "Create API Key".
+  3. Ponle nombre (ej: mi-agenda) y copia la clave que aparece.
+     ⚠️ Solo se muestra una vez, guárdala.
+
+PASO 2 — Verificar tu dominio (o usar el de prueba)
+  Opción A (recomendada): ve a "Domains" → "Add Domain" y sigue
+  los pasos para verificar tu dominio. Necesitas acceso a tu DNS.
+  Te permite enviar desde cualquier email de tu dominio.
+
+  Opción B (para empezar rápido): Resend te da un dominio de prueba
+  "onboarding@resend.dev". Funciona pero solo puede enviar al email
+  del propietario de la cuenta. Úsalo solo para probar.
+
+PASO 3 — Añadir variables en Vercel
+  RESEND_API_KEY   → la clave que copiaste en el paso 1
+  RESEND_FROM      → ej: "Agenda <agenda@tudominio.com>"
+
+PASO 4 — Activar en app.js
+  emailNegocio: { active: true, to: "dueno@minegocio.com" }
+  emailCliente: { active: true }
+
+  Hacer push a GitHub → Vercel redeploy automático.
+
+
+═══════════════════════════════════════════
+ CANAL 2 — TELEGRAM
+ (gratis, sin límite de mensajes)
+═══════════════════════════════════════════
+
+PASO 1 — Crear el bot
+  1. Abre Telegram y busca el usuario @BotFather.
+  2. Escríbele: /newbot
+  3. Te pedirá un nombre para el bot (ej: "Agenda Mi Negocio").
+  4. Te pedirá un username que termine en "bot" (ej: "miagenda_bot").
+  5. Te dará un TOKEN. Cópialo. Tiene este formato:
+     123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
+
+PASO 2 — Obtener tu Chat ID
+  1. Busca tu bot en Telegram y escríbele cualquier mensaje.
+  2. Abre esta URL en el navegador (pon tu token):
+     https://api.telegram.org/bot<TU_TOKEN>/getUpdates
+  3. Verás un JSON. Busca el campo "id" dentro de "chat".
+     Ese número es tu Chat ID. Ejemplo: 987654321
+
+  ⚠️ Si el JSON sale vacío, escríbele otro mensaje al bot
+     y vuelve a cargar la URL.
+
+PASO 3 — Añadir variables en Vercel
+  TELEGRAM_BOT_TOKEN   → el token del paso 1
+  TELEGRAM_CHAT_ID     → el número del paso 2
+
+PASO 4 — Activar en app.js
+  telegram: { active: true }
+
+  Hacer push a GitHub → Vercel redeploy automático.
+
+
+═══════════════════════════════════════════
+ CANAL 3 — WHATSAPP
+ (vía Twilio — tiene coste ~0.05€ por mensaje)
+═══════════════════════════════════════════
+
+PASO 1 — Crear cuenta en Twilio
+  1. Ve a https://twilio.com y crea una cuenta.
+  2. Verifica tu número de teléfono durante el registro.
+
+PASO 2 — Activar el Sandbox de WhatsApp
+  1. En Twilio Console ve a:
+     Messaging → Try it out → Send a WhatsApp message
+  2. Verás un número de Twilio (ej: +14155238886) y un código
+     de activación (ej: "join silver-lamp").
+  3. Desde el WhatsApp del negocio envía ese código al número
+     de Twilio para activar el sandbox.
+  ⚠️ El sandbox es para pruebas. Para producción real necesitas
+     solicitar acceso a la API oficial de WhatsApp Business,
+     lo cual requiere aprobación de Meta (puede tardar días).
+
+PASO 3 — Obtener credenciales
+  En Twilio Console → Account → General Settings encontrarás:
+    Account SID   → empieza por AC...
+    Auth Token    → haz clic en el ojo para verlo
+
+PASO 4 — Añadir variables en Vercel
+  TWILIO_ACCOUNT_SID     → tu Account SID
+  TWILIO_AUTH_TOKEN      → tu Auth Token
+  TWILIO_WHATSAPP_FROM   → whatsapp:+14155238886 (el número de Twilio)
+  TWILIO_WHATSAPP_TO     → whatsapp:+34600000000 (el del negocio)
+  ⚠️ El prefijo "whatsapp:" es obligatorio, no lo quites.
+
+PASO 5 — Activar en app.js
+  whatsapp: { active: true }
+
+  Hacer push a GitHub → Vercel redeploy automático.
+
+
+═══════════════════════════════════════════
+ RESUMEN — Variables de entorno en Vercel
+═══════════════════════════════════════════
+
+ Email:
+   RESEND_API_KEY
+   RESEND_FROM
+
+ Telegram:
+   TELEGRAM_BOT_TOKEN
+   TELEGRAM_CHAT_ID
+
+ WhatsApp:
+   TWILIO_ACCOUNT_SID
+   TWILIO_AUTH_TOKEN
+   TWILIO_WHATSAPP_FROM
+   TWILIO_WHATSAPP_TO
+
+ Solo añade las variables de los canales que vayas a usar.
+ Los canales con active: false se ignoran completamente.
+
+
+═══════════════════════════════════════════
+ ORDEN RECOMENDADO PARA EMPEZAR
+═══════════════════════════════════════════
+
+ 1. Empieza con Telegram — es el más rápido de configurar,
+    gratis y sin límites. Listo en 5 minutos.
+
+ 2. Luego añade Email — Resend es muy fácil y el plan
+    gratuito cubre perfectamente un negocio pequeño.
+
+ 3. WhatsApp déjalo para cuando algún cliente lo pida
+    específicamente, ya que tiene coste por mensaje.
