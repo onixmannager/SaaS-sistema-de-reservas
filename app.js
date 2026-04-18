@@ -39,18 +39,75 @@ export const CONFIG = {
   booking: {
     maxAdvanceDays: 60,
   },
+
+  // ============================================================
+  //  NOTIFICACIONES
+  //  ✏️  Activa o desactiva cada canal con true / false.
+  //  Las credenciales NO van aquí, van en Vercel → Environment Variables.
+  // ============================================================
+  notifications: {
+
+    // ── 1. EMAIL AL NEGOCIO ──────────────────────────────────
+    //  Avisa al dueño del negocio cada vez que entra una reserva.
+    //  Variables de entorno necesarias en Vercel:
+    //    RESEND_API_KEY   → tu clave de resend.com (gratis hasta 3000/mes)
+    //    RESEND_FROM      → email remitente, ej: "agenda@tudominio.com"
+    emailNegocio: {
+      active: true,
+      to: "dueno@minegocio.com",    // ✏️ cambia por el email del negocio
+    },
+
+    // ── 2. EMAIL AL CLIENTE ──────────────────────────────────
+    //  Envía confirmación automática al cliente que reservó.
+    //  El email del destinatario se toma del formulario de reserva.
+    //  Variables de entorno necesarias en Vercel:
+    //    RESEND_API_KEY
+    //    RESEND_FROM
+    emailCliente: {
+      active: true,
+    },
+
+    // ── 3. TELEGRAM ──────────────────────────────────────────
+    //  Mensaje instantáneo al negocio por Telegram. Gratis.
+    //  Cómo configurarlo:
+    //    1. Habla con @BotFather en Telegram → /newbot → copia el token
+    //    2. Manda un mensaje a tu bot y entra a:
+    //       https://api.telegram.org/bot<TOKEN>/getUpdates
+    //       para obtener tu chat_id
+    //  Variables de entorno necesarias en Vercel:
+    //    TELEGRAM_BOT_TOKEN   → el token que te dio @BotFather
+    //    TELEGRAM_CHAT_ID     → tu chat_id
+    telegram: {
+      active: false,
+    },
+
+    // ── 4. WHATSAPP ───────────────────────────────────────────
+    //  Mensaje al negocio por WhatsApp vía Twilio.
+    //  Tiene coste por mensaje (~0.05€). Requiere cuenta en twilio.com.
+    //  Cómo configurarlo:
+    //    1. Crea cuenta en twilio.com
+    //    2. Activa el sandbox de WhatsApp en Twilio Console
+    //    3. Copia Account SID, Auth Token y el número "From" de Twilio
+    //  Variables de entorno necesarias en Vercel:
+    //    TWILIO_ACCOUNT_SID      → en Twilio Console
+    //    TWILIO_AUTH_TOKEN       → en Twilio Console
+    //    TWILIO_WHATSAPP_FROM    → ej: "whatsapp:+14155238886"
+    //    TWILIO_WHATSAPP_TO      → ej: "whatsapp:+34600000000" (el del negocio)
+    whatsapp: {
+      active: false,
+    },
+
+  },
 };
 
 
 // ============================================================
 //  INICIALIZACIÓN FIREBASE
-//  Las credenciales viven en variables de entorno de Vercel
-//  y se sirven de forma segura desde /api/config.js
 // ============================================================
 let db = null;
 
 export async function initApp() {
-  if (db) return; // ya inicializado, no repetir
+  if (db) return;
 
   const res = await fetch('/api/config');
   if (!res.ok) throw new Error('No se pudo obtener la configuración de Firebase.');
@@ -74,8 +131,8 @@ function minToTime(m) {
 }
 
 function buildLocalSlots(date, duration) {
-  const DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-  const d    = new Date(date + 'T00:00:00');
+  const DAYS  = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  const d     = new Date(date + 'T00:00:00');
   const sched = CONFIG.schedule[DAYS[d.getDay()]];
   if (!sched || sched.closed) return [];
 
@@ -89,7 +146,6 @@ function buildLocalSlots(date, duration) {
 
 // ============================================================
 //  DISPONIBILIDAD
-//  Devuelve array: [{ start: "09:00", available: true }, ...]
 // ============================================================
 export async function getAvailability(date, duration) {
   await initApp();
@@ -97,7 +153,6 @@ export async function getAvailability(date, duration) {
   const allSlots = buildLocalSlots(date, duration);
   if (!allSlots.length) return [];
 
-  // Consultar slots ya ocupados ese día
   const q = query(
     collection(db, 'reservations'),
     where('date',   '==', date),
@@ -114,6 +169,44 @@ export async function getAvailability(date, duration) {
 
 
 // ============================================================
+//  NOTIFICACIONES INTERNAS
+//  Se llama sola después de crear una reserva.
+//  Solo activa los canales con active: true en CONFIG.
+//  Si falla NO bloquea ni cancela la reserva.
+// ============================================================
+async function sendNotifications(reservationData) {
+  const n = CONFIG.notifications;
+
+  const anyActive =
+    n.emailNegocio.active ||
+    n.emailCliente.active ||
+    n.telegram.active     ||
+    n.whatsapp.active;
+
+  if (!anyActive) return;
+
+  try {
+    await fetch('/api/notify', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        reservation:  reservationData,
+        businessName: CONFIG.business.name,
+        channels: {
+          emailNegocio: n.emailNegocio.active ? { to: n.emailNegocio.to } : null,
+          emailCliente: n.emailCliente.active  ? true : null,
+          telegram:     n.telegram.active      ? true : null,
+          whatsapp:     n.whatsapp.active       ? true : null,
+        },
+      }),
+    });
+  } catch (e) {
+    console.warn('Notificaciones: error al enviar (la reserva se guardó correctamente):', e);
+  }
+}
+
+
+// ============================================================
 //  CREAR RESERVA (desde reserva.html)
 //  Lanza Error('SLOT_TAKEN') si el hueco ya no está libre
 // ============================================================
@@ -123,7 +216,7 @@ export async function createReservation({ serviceId, date, startTime, duration, 
   const service = CONFIG.services.find(s => s.id === serviceId);
   if (!service) throw new Error('Servicio no encontrado.');
 
-  // Doble verificación de disponibilidad (race condition prevention)
+  // Doble verificación de disponibilidad
   const conflict = query(
     collection(db, 'reservations'),
     where('date',   '==', date),
@@ -137,11 +230,21 @@ export async function createReservation({ serviceId, date, startTime, duration, 
     serviceId,
     serviceName: service.name,
     date,
+    time:      startTime,
+    duration,
+    status:    'confirmed',
+    customer:  { name, email, phone: phone || '', notes: notes || '' },
+    createdAt: serverTimestamp(),
+  });
+
+  // Notificaciones (no bloquea si falla)
+  sendNotifications({
+    id:          ref.id,
+    serviceName: service.name,
+    date,
     time:        startTime,
     duration,
-    status:      'confirmed',
     customer:    { name, email, phone: phone || '', notes: notes || '' },
-    createdAt:   serverTimestamp(),
   });
 
   return { id: ref.id };
@@ -150,7 +253,6 @@ export async function createReservation({ serviceId, date, startTime, duration, 
 
 // ============================================================
 //  LEER RESERVAS (admin)
-//  Devuelve array con todas las reservas, más recientes primero
 // ============================================================
 export async function getReservations() {
   await initApp();
@@ -163,7 +265,7 @@ export async function getReservations() {
 
 
 // ============================================================
-//  ACTUALIZAR RESERVA (admin — editar datos)
+//  ACTUALIZAR RESERVA (admin)
 // ============================================================
 export async function updateReservation(id, { name, email, phone, serviceId, date, time, status, notes }) {
   await initApp();
@@ -192,7 +294,7 @@ export async function cancelReservation(id, reason = '') {
   await initApp();
 
   await updateDoc(doc(db, 'reservations', id), {
-    status:      'cancelled',
+    status:       'cancelled',
     cancelReason: reason,
     cancelledAt:  serverTimestamp(),
   });
@@ -200,7 +302,7 @@ export async function cancelReservation(id, reason = '') {
 
 
 // ============================================================
-//  CREAR RESERVA DESDE ADMIN (nueva cita manual)
+//  CREAR RESERVA DESDE ADMIN
 // ============================================================
 export async function adminCreateReservation({ name, email, phone, serviceId, date, time, status, notes }) {
   await initApp();
@@ -222,7 +324,6 @@ export async function adminCreateReservation({ name, email, phone, serviceId, da
 
 // ============================================================
 //  VERIFICAR CONTRASEÑA DE ADMINISTRADOR
-//  Compara contra la variable ADMIN_PASSWORD en Vercel
 // ============================================================
 export async function verifyAdmin(password) {
   const res = await fetch('/api/admin-verify', {
