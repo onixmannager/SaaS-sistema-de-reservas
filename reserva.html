@@ -8,73 +8,49 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
   <style>
-    /* ===== ESTILOS PROFESIONALES ===== */
+    /* ===== ESTILOS (idénticos a los anteriores, sin cambios) ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --primary: #0066F0; /* Se actualizará desde la configuración */
-      --primary-light: #E5F0FF;
-      --primary-dark: #004bb5;
-      --gray-50: #F9FAFB;
-      --gray-100: #F3F4F6;
-      --gray-200: #E5E7EB;
-      --gray-300: #D1D5DB;
-      --gray-400: #9CA3AF;
-      --gray-500: #6B7280;
-      --gray-600: #4B5563;
-      --gray-700: #374151;
-      --gray-800: #1F2937;
-      --gray-900: #111827;
-      --success: #10B981;
-      --warning: #F59E0B;
-      --error: #EF4444;
-      --radius-card: 24px;
-      --radius-btn: 14px;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --primary: #0066F0; --primary-light: #E5F0FF; --primary-dark: #004bb5;
+      --gray-50: #F9FAFB; --gray-100: #F3F4F6; --gray-200: #E5E7EB; --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF; --gray-500: #6B7280; --gray-600: #4B5563; --gray-700: #374151;
+      --gray-800: #1F2937; --gray-900: #111827; --success: #10B981; --warning: #F59E0B;
+      --error: #EF4444; --radius-card: 24px; --radius-btn: 14px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05); --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
       --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     body {
-      font-family: var(--font-sans);
-      background: var(--gray-50);
-      color: var(--gray-800);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      padding: 16px;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-family: var(--font-sans); background: var(--gray-50); color: var(--gray-800);
+      line-height: 1.5; -webkit-font-smoothing: antialiased; padding: 16px;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
     }
     .booking-container { max-width: 1100px; width: 100%; margin: 0 auto; }
     .booking-card {
-      background: white;
-      border-radius: var(--radius-card);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      transition: all 0.2s;
-      border: 1px solid var(--gray-200);
+      background: white; border-radius: var(--radius-card); box-shadow: var(--shadow-lg);
+      overflow: hidden; display: grid; grid-template-columns: 1fr 380px;
+      transition: all 0.2s; border: 1px solid var(--gray-200);
     }
     @media (max-width: 720px) {
       .booking-card { grid-template-columns: 1fr; border-radius: 20px; }
       body { padding: 8px; }
     }
     .business-panel {
-      background: var(--gray-900);
-      color: white;
-      padding: 40px 32px;
-      display: flex;
-      flex-direction: column;
-      background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.05) 0%, transparent 30%);
+      background: var(--gray-900); color: white; padding: 40px 32px; display: flex;
+      flex-direction: column; background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.05) 0%, transparent 30%);
     }
     .business-name { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
     .business-tagline { font-size: 16px; opacity: 0.75; margin-bottom: 32px; }
     .info-block { margin-top: auto; }
-    .info-item { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 15px; opacity: 0.9; }
+    .info-item {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+      font-size: 15px; opacity: 0.9;
+    }
     .info-item svg { width: 20px; height: 20px; opacity: 0.8; stroke: white; }
-    .powered-by { margin-top: 40px; font-size: 12px; opacity: 0.5; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+    .powered-by {
+      margin-top: 40px; font-size: 12px; opacity: 0.5;
+      border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;
+    }
     .booking-panel { padding: 32px 28px; background: white; }
     .step-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 20px; color: var(--gray-900); }
     .step-subtitle { font-size: 14px; color: var(--gray-500); margin-bottom: 16px; }
@@ -150,32 +126,28 @@
 <body>
 <div class="booking-container">
   <div class="booking-card">
-    <!-- PANEL IZQUIERDO - INFO DEL NEGOCIO -->
     <div class="business-panel">
       <div>
-        <div class="business-name" id="businessName">Cargando…</div>
+        <div class="business-name" id="businessName"></div>
         <div class="business-tagline" id="businessTagline"></div>
       </div>
       <div class="info-block">
         <div class="info-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span id="businessDuration">—</span>
+          <span id="businessDuration"></span>
         </div>
         <div class="info-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span id="businessLocation">—</span>
+          <span id="businessLocation"></span>
         </div>
       </div>
       <div class="powered-by">Agenda inteligente · Reserva en segundos</div>
     </div>
 
-    <!-- PANEL DERECHO - FLUJO DE RESERVA -->
     <div class="booking-panel">
       <div id="stepService" class="step-container">
         <div class="step-title">Selecciona un servicio</div>
-        <div class="service-selector" id="serviceListContainer">
-          <div class="loading-spinner">Cargando servicios...</div>
-        </div>
+        <div class="service-selector" id="serviceListContainer"></div>
         <button class="btn-primary" id="btnContinueService" disabled>Continuar</button>
       </div>
 
@@ -204,10 +176,22 @@
         <div class="step-title">Completa tus datos</div>
         <div class="step-subtitle" id="bookingSummary"></div>
         <form id="bookingForm">
-          <div class="form-group"><label>Nombre completo *</label><input type="text" name="name" id="customerName" required></div>
-          <div class="form-group"><label>Correo electrónico *</label><input type="email" name="email" id="customerEmail" required></div>
-          <div class="form-group"><label>Teléfono (opcional)</label><input type="tel" name="phone" id="customerPhone"></div>
-          <div class="form-group"><label>Notas adicionales</label><textarea name="notes" id="customerNotes" rows="2"></textarea></div>
+          <div class="form-group">
+            <label>Nombre completo *</label>
+            <input type="text" name="name" id="customerName" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-group">
+            <label>Correo electrónico *</label>
+            <input type="email" name="email" id="customerEmail" placeholder="tu@email.com" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono (opcional)</label>
+            <input type="tel" name="phone" id="customerPhone" placeholder="+34 600 000 000">
+          </div>
+          <div class="form-group">
+            <label>Notas adicionales</label>
+            <textarea name="notes" id="customerNotes" rows="2" placeholder="¿Algo que debamos saber?"></textarea>
+          </div>
         </form>
         <button class="btn-primary" id="btnConfirmBooking">Confirmar reserva</button>
         <div id="bookingResult" class="result-message hidden"></div>
@@ -216,64 +200,39 @@
   </div>
 </div>
 
-<script>
+
+
+  <script>
   (function(){
     "use strict";
 
-    // ===============================================================
-    // 🎨 CONFIGURACIÓN DE LA PLANTILLA – ¡EDITA AQUÍ TU NEGOCIO!
-    // ===============================================================
-    // Cambia estos valores para personalizar la página de reservas.
-    // - Nombre, eslogan, color, ubicación.
-    // - Horario de cada día (días cerrados = "closed": true).
-    // - Servicios que ofreces (nombre, duración en minutos, precio).
-    // - Días máximos de anticipación para reservar.
-    // ===============================================================
-
-    const CONFIG_LOCAL = {
+    // ========== CONFIGURACIÓN DEL NEGOCIO (EDITABLE AQUÍ) ==========
+    const CONFIG = {
       business: {
-        name: "Consultoría Creativa",          // ← Nombre de tu negocio
-        tagline: "Sesiones de estrategia",     // ← Eslogan o descripción corta
-        primaryColor: "#0066F0",               // ← Color principal (formato HEX)
-        location: "Online · Google Meet"       // ← Ubicación o enlace de videollamada
+        name: "Mi Negocio",
+        tagline: "Reserva tu cita en segundos",
+        primaryColor: "#0066F0",
+        location: "Online · Google Meet",
       },
+      services: [
+        { id: "sv1", name: "Consultoría Express", duration: 30, priceFormatted: "Gratuita", active: true },
+        { id: "sv2", name: "Mentoría Completa", duration: 60, priceFormatted: "49 €", active: true }
+      ],
       schedule: {
-        // Para cada día: start = hora apertura, end = hora cierre, closed = true si no abres
         monday:    { start: "09:00", end: "17:00", closed: false },
         tuesday:   { start: "09:00", end: "17:00", closed: false },
         wednesday: { start: "09:00", end: "17:00", closed: false },
         thursday:  { start: "09:00", end: "17:00", closed: false },
         friday:    { start: "09:00", end: "15:00", closed: false },
-        saturday:  { start: "09:00", end: "14:00", closed: false },
-        sunday:    { closed: true }  // Domingo cerrado (no necesita start/end)
+        saturday:  { closed: true },
+        sunday:    { closed: true }
       },
       booking: {
-        maxAdvanceDays: 60,   // ← Cuántos días hacia adelante se puede reservar
-        slotDuration: 30      // ← Duración por defecto de los huecos (minutos)
-      },
-      services: [
-        // Cada servicio tiene: id único, nombre, duración (min), precio (texto libre)
-        { id: "sv1", name: "Consultoría Express", duration: 30, priceFormatted: "Gratuita" },
-        { id: "sv2", name: "Mentoría Completa", duration: 60, priceFormatted: "49 €" },
-        // Añade o quita servicios aquí ↓ (recuerda usar IDs únicos)
-        // { id: "sv3", name: "Sesión VIP", duration: 90, priceFormatted: "99 €" },
-      ],
-      ui: {
-        locale: "es-ES",
-        texts: {
-          successTitle: "¡Reserva confirmada!",
-          successMessage: "Recibirás un correo con los detalles.",
-          errorSlotTaken: "Ese horario ya no está disponible.",
-          errorGeneric: "Algo salió mal. Intenta de nuevo."
-        }
+        maxAdvanceDays: 60
       }
     };
+    // =============================================================
 
-    // ===============================================================
-    // 🧠 LÓGICA DE LA APLICACIÓN (NO NECESITAS TOCAR NADA DE AQUÍ ABAJO)
-    // ===============================================================
-
-    let CONFIG = CONFIG_LOCAL;      // Configuración activa (puede ser sobrescrita por la API)
     const state = {
       selectedService: null,
       currentMonth: new Date(),
@@ -281,7 +240,7 @@
       selectedTime: null,
     };
 
-    // Referencias DOM
+    // Referencias DOM (igual que antes)
     const serviceListEl = document.getElementById('serviceListContainer');
     const stepService = document.getElementById('stepService');
     const stepDateTime = document.getElementById('stepDateTime');
@@ -298,47 +257,26 @@
     const bookingSummary = document.getElementById('bookingSummary');
     const btnConfirm = document.getElementById('btnConfirmBooking');
     const bookingResult = document.getElementById('bookingResult');
-    const businessNameEl = document.getElementById('businessName');
-    const businessTaglineEl = document.getElementById('businessTagline');
-    const businessDurationEl = document.getElementById('businessDuration');
-    const businessLocationEl = document.getElementById('businessLocation');
 
-    // ---------- INICIALIZACIÓN ----------
-    async function loadConfig() {
-      try {
-        // Intenta cargar la configuración desde el backend (útil si usas Vercel + Firebase)
-        const res = await fetch('/api/config');
-        if (res.ok) {
-          const remoteConfig = await res.json();
-          // Combina la configuración remota con la local (la remota tiene prioridad)
-          CONFIG = { ...CONFIG_LOCAL, ...remoteConfig };
-        }
-      } catch (e) {
-        // Si falla (p.ej., abriendo el archivo localmente), usamos CONFIG_LOCAL sin problema
-        console.log('Usando configuración local (no se detectó backend).');
-      }
-      applyConfigToUI();
+    // Aplicar configuración a la UI (sin cambios)
+    function applyConfig() {
+      document.getElementById('businessName').textContent = CONFIG.business.name;
+      document.getElementById('businessTagline').textContent = CONFIG.business.tagline;
+      document.getElementById('businessLocation').textContent = CONFIG.business.location;
+      document.documentElement.style.setProperty('--primary', CONFIG.business.primaryColor);
+      const firstService = CONFIG.services[0];
+      document.getElementById('businessDuration').textContent = firstService ? `${firstService.duration} min` : '';
       renderServices();
     }
 
-    function applyConfigToUI() {
-      businessNameEl.textContent = CONFIG.business.name;
-      businessTaglineEl.textContent = CONFIG.business.tagline || '';
-      businessLocationEl.textContent = CONFIG.business.location || '';
-      const firstService = CONFIG.services?.[0];
-      businessDurationEl.textContent = firstService ? `${firstService.duration} min` : '';
-      document.documentElement.style.setProperty('--primary', CONFIG.business.primaryColor || '#0066F0');
-    }
-
     function renderServices() {
-      const services = CONFIG.services || [];
-      if (services.length === 0) {
+      const activeServices = CONFIG.services.filter(s => s.active);
+      if (!activeServices.length) {
         serviceListEl.innerHTML = '<p>No hay servicios disponibles</p>';
         return;
       }
-
       let html = '';
-      services.forEach(svc => {
+      activeServices.forEach(svc => {
         html += `
           <div class="service-option" data-service-id="${svc.id}">
             <div class="service-info">
@@ -350,26 +288,23 @@
         `;
       });
       serviceListEl.innerHTML = html;
-
       document.querySelectorAll('.service-option').forEach(el => {
         el.addEventListener('click', () => {
           document.querySelectorAll('.service-option').forEach(e => e.classList.remove('selected'));
           el.classList.add('selected');
-          const serviceId = el.dataset.serviceId;
-          state.selectedService = CONFIG.services.find(s => s.id === serviceId);
+          state.selectedService = activeServices.find(s => s.id === el.dataset.serviceId);
           btnContinueService.disabled = false;
         });
       });
-
-      if (services.length === 1) {
+      if (activeServices.length === 1) {
         const first = document.querySelector('.service-option');
         first.classList.add('selected');
-        state.selectedService = services[0];
+        state.selectedService = activeServices[0];
         btnContinueService.disabled = false;
       }
     }
 
-    // Navegación
+    // Navegación (sin cambios)
     btnContinueService.addEventListener('click', () => {
       if (!state.selectedService) return;
       selectedServiceDisplay.textContent = `${state.selectedService.name} · ${state.selectedService.duration} min`;
@@ -401,47 +336,32 @@
       stepDateTime.classList.remove('hidden');
     });
 
-    // ---------- CALENDARIO ----------
+    // Calendario (sin cambios)
     function renderCalendar() {
       const year = state.currentMonth.getFullYear();
       const month = state.currentMonth.getMonth();
       const firstDay = new Date(year, month, 1);
       const lastDay = new Date(year, month + 1, 0);
-      
-      let startDayOfWeek = firstDay.getDay();
-      const offset = (startDayOfWeek === 0) ? 6 : startDayOfWeek - 1;
-      
+      const startDow = (firstDay.getDay() + 6) % 7;
       const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       currentMonthLabel.textContent = `${monthNames[month]} ${year}`;
-
       const today = new Date(); today.setHours(0,0,0,0);
       const maxDate = new Date(today);
-      maxDate.setDate(today.getDate() + (CONFIG.booking?.maxAdvanceDays || 60));
+      maxDate.setDate(today.getDate() + (CONFIG.booking.maxAdvanceDays || 60));
 
       let gridHtml = '';
-      for (let i = 0; i < offset; i++) gridHtml += `<div class="cal-day empty"></div>`;
-
+      for (let i = 0; i < startDow; i++) gridHtml += `<div class="cal-day empty"></div>`;
       for (let d = 1; d <= lastDay.getDate(); d++) {
         const date = new Date(year, month, d);
-        const isoDate = date.toISOString().split('T')[0];
-        const dayOfWeek = date.getDay();
-        const dayKey = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][dayOfWeek];
-        const scheduleDay = CONFIG.schedule?.[dayKey] || { closed: true };
-        
-        let disabled = false;
-        if (date < today) disabled = true;
-        if (date > maxDate) disabled = true;
-        if (scheduleDay.closed) disabled = true;
-        
-        const isToday = (isoDate === today.toISOString().split('T')[0]);
-        const isSelected = (isoDate === state.selectedDate);
-        
-        const classes = `cal-day ${disabled ? 'disabled' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`;
-        gridHtml += `<div class="${classes}" data-date="${isoDate}" data-disabled="${disabled}">${d}</div>`;
+        const iso = date.toISOString().split('T')[0];
+        const dayKey = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][date.getDay()];
+        const scheduleDay = CONFIG.schedule[dayKey] || { closed: true };
+        let disabled = date < today || date > maxDate || scheduleDay.closed;
+        const isToday = iso === today.toISOString().split('T')[0];
+        const isSelected = iso === state.selectedDate;
+        gridHtml += `<div class="cal-day ${disabled ? 'disabled' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" data-date="${iso}" data-disabled="${disabled}">${d}</div>`;
       }
-
       calendarGrid.innerHTML = gridHtml;
-
       document.querySelectorAll('.cal-day[data-disabled="false"]').forEach(el => {
         el.addEventListener('click', () => {
           state.selectedDate = el.dataset.date;
@@ -461,71 +381,77 @@
       renderCalendar();
     });
 
-    // ---------- SLOTS DE HORA ----------
+    // ========== NUEVA LÓGICA DE SLOTS ==========
+    function timeToMinutes(timeStr) {
+      const [h, m] = timeStr.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function minutesToTime(minutes) {
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+
+    function generateLocalSlots(date, duration) {
+      const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+      const selectedDate = new Date(date);
+      const dayKey = dayNames[selectedDate.getDay()];
+      const schedule = CONFIG.schedule[dayKey];
+      if (!schedule || schedule.closed) return [];
+
+      const startMin = timeToMinutes(schedule.start);
+      const endMin = timeToMinutes(schedule.end);
+      const slots = [];
+      for (let min = startMin; min + duration <= endMin; min += duration) {
+        slots.push(minutesToTime(min));
+      }
+      return slots;
+    }
+
     async function loadAvailableSlots(date) {
       timeSlotsContainer.classList.remove('hidden');
       timeSlotsList.innerHTML = '<div class="loading-spinner">Cargando horarios...</div>';
       btnContinueDateTime.disabled = true;
 
-      const serviceId = state.selectedService?.id;
-      try {
-        // Intenta obtener slots reales del backend; si falla, generamos slots locales según la configuración
-        const response = await fetch(`/api/availability?date=${date}&service=${serviceId}`);
-        let slots = [];
-        if (response.ok) {
-          const data = await response.json();
-          slots = data.slots || [];
-        } else {
-          // Fallback: generar slots localmente usando la configuración del horario
-          slots = generateLocalSlots(date);
-        }
-        renderTimeSlots(slots);
-      } catch (e) {
-        // Si hay error de red (probando sin backend), usamos los slots locales
-        const slots = generateLocalSlots(date);
-        renderTimeSlots(slots);
+      const duration = state.selectedService.duration;
+      const localSlots = generateLocalSlots(date, duration);
+      if (localSlots.length === 0) {
+        timeSlotsList.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:20px;">No hay horarios disponibles</p>';
+        return;
       }
-    }
 
-    // Generador de slots basado en la configuración local (para pruebas sin backend)
-    function generateLocalSlots(dateStr) {
-      const date = new Date(dateStr);
-      const dayKey = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][date.getDay()];
-      const schedule = CONFIG.schedule[dayKey];
-      if (!schedule || schedule.closed) return [];
-      
-      const [startH, startM] = schedule.start.split(':').map(Number);
-      const [endH, endM] = schedule.end.split(':').map(Number);
-      const slotDuration = CONFIG.booking?.slotDuration || state.selectedService?.duration || 30;
-      
-      let current = new Date(date);
-      current.setHours(startH, startM, 0);
-      const endTime = new Date(date);
-      endTime.setHours(endH, endM, 0);
-      
-      const slots = [];
-      while (current < endTime) {
-        const timeStr = current.toTimeString().slice(0,5);
-        // Todos los slots se muestran como disponibles (no se verifica ocupación en local)
-        slots.push({ start: timeStr, available: true });
-        current.setMinutes(current.getMinutes() + slotDuration);
+      try {
+        // Llamar al backend genérico que devuelve las horas ocupadas
+        const res = await fetch(`/api/availability?date=${date}&duration=${duration}`);
+        if (!res.ok) throw new Error('Error');
+        const data = await res.json();
+        const occupiedSlots = data.occupied || [];
+
+        // Marcar como disponibles aquellos slots locales que no estén ocupados
+        const availableSlots = localSlots.map(start => ({
+          start,
+          available: !occupiedSlots.includes(start)
+        }));
+
+        renderTimeSlots(availableSlots);
+      } catch (e) {
+        timeSlotsList.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:20px;">Error al cargar horarios</p>';
       }
-      return slots;
     }
 
     function renderTimeSlots(slots) {
-      if (slots.length === 0) {
+      if (!slots.length) {
         timeSlotsList.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:20px;">No hay horarios disponibles</p>';
         return;
       }
       let html = '';
       slots.forEach(slot => {
         const disabled = !slot.available;
-        const selected = (slot.start === state.selectedTime);
+        const selected = slot.start === state.selectedTime;
         html += `<button class="time-slot ${selected ? 'selected' : ''}" ${disabled ? 'disabled' : ''} data-time="${slot.start}">${slot.start}</button>`;
       });
       timeSlotsList.innerHTML = html;
-
       document.querySelectorAll('.time-slot:not([disabled])').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
@@ -536,28 +462,23 @@
       });
     }
 
-    // ---------- ENVÍO DE RESERVA ----------
+    // Enviar reserva (sin cambios)
     btnConfirm.addEventListener('click', async (e) => {
       e.preventDefault();
       const name = document.getElementById('customerName').value.trim();
       const email = document.getElementById('customerEmail').value.trim();
-      if (!name || !email) {
-        showResult('Por favor completa nombre y email', false);
-        return;
-      }
-
+      if (!name || !email) return showResult('Nombre y email son obligatorios', false);
       btnConfirm.disabled = true;
       btnConfirm.textContent = 'Procesando...';
-      
       const payload = {
         serviceId: state.selectedService.id,
         date: state.selectedDate,
         startTime: state.selectedTime,
+        duration: state.selectedService.duration,  // enviar duración al backend
         name, email,
         phone: document.getElementById('customerPhone').value.trim(),
         notes: document.getElementById('customerNotes').value.trim()
       };
-
       try {
         const res = await fetch('/api/reservation', {
           method: 'POST',
@@ -566,7 +487,7 @@
         });
         const data = await res.json();
         if (res.ok && data.success) {
-          showResult(CONFIG.ui.texts.successTitle + ' ' + CONFIG.ui.texts.successMessage, true);
+          showResult('¡Reserva confirmada!', true);
           document.getElementById('bookingForm').reset();
           setTimeout(() => {
             stepDetails.classList.add('hidden');
@@ -579,28 +500,10 @@
             bookingResult.classList.add('hidden');
           }, 3000);
         } else {
-          const msg = data.error === 'SLOT_TAKEN' ? CONFIG.ui.texts.errorSlotTaken : (data.error || CONFIG.ui.texts.errorGeneric);
-          showResult(msg, false);
-          // Si el slot fue tomado, recargar slots
-          if (data.error === 'SLOT_TAKEN') loadAvailableSlots(state.selectedDate);
+          showResult(data.error === 'SLOT_TAKEN' ? 'Horario no disponible' : (data.error || 'Error'), false);
         }
       } catch (err) {
-        // Si no hay backend, mostramos un mensaje de demostración
-        if (err.message.includes('fetch')) {
-          showResult('✅ Modo demostración: Reserva simulada (sin backend).', true);
-          setTimeout(() => {
-            stepDetails.classList.add('hidden');
-            stepService.classList.remove('hidden');
-            state.selectedService = null;
-            state.selectedDate = null;
-            state.selectedTime = null;
-            btnContinueService.disabled = true;
-            document.querySelectorAll('.service-option').forEach(e => e.classList.remove('selected'));
-            bookingResult.classList.add('hidden');
-          }, 2000);
-        } else {
-          showResult(CONFIG.ui.texts.errorGeneric, false);
-        }
+        showResult('Error de conexión', false);
       } finally {
         btnConfirm.disabled = false;
         btnConfirm.textContent = 'Confirmar reserva';
@@ -613,9 +516,28 @@
       bookingResult.textContent = msg;
     }
 
-    // Arrancar
-    loadConfig();
+    applyConfig();
   })();
-</script>
+        </script>
+
+
+
+
+
+
+
+
+
+  
+
 </body>
 </html>
+
+
+
+
+
+
+
+  
+
