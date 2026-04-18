@@ -43,58 +43,75 @@ export const CONFIG = {
   // ============================================================
   //  NOTIFICACIONES
   //  ✏️  Activa o desactiva cada canal con true / false.
-  //  Las credenciales NO van aquí, van en Vercel → Environment Variables.
+  //  Solo activa los canales que hayas configurado.
   // ============================================================
   notifications: {
 
-    // ── 1. EMAIL AL NEGOCIO ──────────────────────────────────
+    // ── 1. EMAIL AL NEGOCIO (Resend) ─────────────────────────
     //  Avisa al dueño del negocio cada vez que entra una reserva.
     //  Variables de entorno necesarias en Vercel:
-    //    RESEND_API_KEY   → tu clave de resend.com (gratis hasta 3000/mes)
-    //    RESEND_FROM      → email remitente, ej: "agenda@tudominio.com"
+    //    RESEND_API_KEY   → tu clave de resend.com
+    //    RESEND_FROM      → ej: "Agenda <agenda@tudominio.com>"
     emailNegocio: {
-      active: true,
-      to: "dueno@minegocio.com",    // ✏️ cambia por el email del negocio
+      active: false,
+      to: "dueno@minegocio.com",    // ✏️ email del dueño del negocio
     },
 
-    // ── 2. EMAIL AL CLIENTE ──────────────────────────────────
+    // ── 2. EMAIL AL CLIENTE (Resend) ─────────────────────────
     //  Envía confirmación automática al cliente que reservó.
     //  El email del destinatario se toma del formulario de reserva.
     //  Variables de entorno necesarias en Vercel:
     //    RESEND_API_KEY
     //    RESEND_FROM
     emailCliente: {
-      active: true,
+      active: false,
     },
 
     // ── 3. TELEGRAM ──────────────────────────────────────────
-    //  Mensaje instantáneo al negocio por Telegram. Gratis.
-    //  Cómo configurarlo:
-    //    1. Habla con @BotFather en Telegram → /newbot → copia el token
-    //    2. Manda un mensaje a tu bot y entra a:
-    //       https://api.telegram.org/bot<TOKEN>/getUpdates
-    //       para obtener tu chat_id
+    //  Mensaje instantáneo al negocio. Gratis e ilimitado.
+    //  Cómo obtener el token y chat_id: habla con @BotFather
+    //  en Telegram → /newbot → copia el token → escríbele al
+    //  bot → abre api.telegram.org/bot<TOKEN>/getUpdates
     //  Variables de entorno necesarias en Vercel:
-    //    TELEGRAM_BOT_TOKEN   → el token que te dio @BotFather
-    //    TELEGRAM_CHAT_ID     → tu chat_id
+    //    TELEGRAM_BOT_TOKEN
+    //    TELEGRAM_CHAT_ID
     telegram: {
       active: false,
     },
 
-    // ── 4. WHATSAPP ───────────────────────────────────────────
-    //  Mensaje al negocio por WhatsApp vía Twilio.
-    //  Tiene coste por mensaje (~0.05€). Requiere cuenta en twilio.com.
-    //  Cómo configurarlo:
-    //    1. Crea cuenta en twilio.com
-    //    2. Activa el sandbox de WhatsApp en Twilio Console
-    //    3. Copia Account SID, Auth Token y el número "From" de Twilio
+    // ── 4. WHATSAPP (Twilio) ──────────────────────────────────
+    //  Mensaje al negocio por WhatsApp. ~0.05€ por mensaje.
     //  Variables de entorno necesarias en Vercel:
-    //    TWILIO_ACCOUNT_SID      → en Twilio Console
-    //    TWILIO_AUTH_TOKEN       → en Twilio Console
-    //    TWILIO_WHATSAPP_FROM    → ej: "whatsapp:+14155238886"
-    //    TWILIO_WHATSAPP_TO      → ej: "whatsapp:+34600000000" (el del negocio)
+    //    TWILIO_ACCOUNT_SID
+    //    TWILIO_AUTH_TOKEN
+    //    TWILIO_WHATSAPP_FROM   → ej: "whatsapp:+14155238886"
+    //    TWILIO_WHATSAPP_TO     → ej: "whatsapp:+34600000000"
     whatsapp: {
       active: false,
+    },
+
+    // ── 5. EMAILJS ────────────────────────────────────────────
+    //  Email gratuito (200/mes) sin necesidad de dominio propio.
+    //  Envía desde el Gmail o email del negocio directamente.
+    //  No necesita variables de entorno en Vercel — las claves
+    //  van aquí porque EmailJS está diseñado para usarse en el cliente.
+    //  Cómo configurarlo:
+    //    1. Crea cuenta en https://emailjs.com (gratis)
+    //    2. Ve a "Email Services" → conecta tu Gmail o email
+    //    3. Copia el Service ID (ej: "service_abc123")
+    //    4. Ve a "Email Templates" → crea una plantilla
+    //       En el asunto y cuerpo puedes usar estas variables:
+    //         {{business_name}}, {{customer_name}}, {{customer_email}}
+    //         {{customer_phone}}, {{service_name}}, {{date}}, {{time}}
+    //         {{duration}}, {{notes}}
+    //    5. Copia el Template ID (ej: "template_xyz789")
+    //    6. Ve a "Account" → copia tu Public Key (ej: "user_ABC...")
+    emailjs: {
+      active: false,
+      publicKey:  "user_XXXXXXXXXXXXXXXXX",   // ✏️ tu Public Key de EmailJS
+      serviceId:  "service_XXXXXXXXX",         // ✏️ tu Service ID de EmailJS
+      templateId: "template_XXXXXXXXX",        // ✏️ tu Template ID de EmailJS
+      to:         "dueno@minegocio.com",        // ✏️ email donde llega el aviso
     },
 
   },
@@ -169,12 +186,50 @@ export async function getAvailability(date, duration) {
 
 
 // ============================================================
-//  NOTIFICACIONES INTERNAS
+//  NOTIFICACIONES — EmailJS (canal 5, se ejecuta en el cliente)
+//  Los otros 4 canales van por /api/notify (servidor)
+// ============================================================
+async function sendEmailJS(reservationData) {
+  const ejs = CONFIG.notifications.emailjs;
+  if (!ejs.active) return;
+
+  const dateParts    = reservationData.date.split('-');
+  const dateReadable = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+
+  try {
+    await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id:  ejs.serviceId,
+        template_id: ejs.templateId,
+        user_id:     ejs.publicKey,
+        template_params: {
+          to_email:      ejs.to,
+          business_name: CONFIG.business.name,
+          customer_name:  reservationData.customer.name,
+          customer_email: reservationData.customer.email,
+          customer_phone: reservationData.customer.phone || 'No indicado',
+          service_name:   reservationData.serviceName,
+          date:           dateReadable,
+          time:           reservationData.time,
+          duration:       reservationData.duration + ' min',
+          notes:          reservationData.customer.notes || 'Ninguna',
+        },
+      }),
+    });
+  } catch (e) {
+    console.warn('EmailJS: error al enviar (la reserva se guardó correctamente):', e);
+  }
+}
+
+
+// ============================================================
+//  NOTIFICACIONES — Canales servidor (Resend, Telegram, WhatsApp)
 //  Se llama sola después de crear una reserva.
-//  Solo activa los canales con active: true en CONFIG.
 //  Si falla NO bloquea ni cancela la reserva.
 // ============================================================
-async function sendNotifications(reservationData) {
+async function sendServerNotifications(reservationData) {
   const n = CONFIG.notifications;
 
   const anyActive =
@@ -201,7 +256,7 @@ async function sendNotifications(reservationData) {
       }),
     });
   } catch (e) {
-    console.warn('Notificaciones: error al enviar (la reserva se guardó correctamente):', e);
+    console.warn('Notificaciones servidor: error (la reserva se guardó correctamente):', e);
   }
 }
 
@@ -237,15 +292,18 @@ export async function createReservation({ serviceId, date, startTime, duration, 
     createdAt: serverTimestamp(),
   });
 
-  // Notificaciones (no bloquea si falla)
-  sendNotifications({
+  const reservationData = {
     id:          ref.id,
     serviceName: service.name,
     date,
     time:        startTime,
     duration,
     customer:    { name, email, phone: phone || '', notes: notes || '' },
-  });
+  };
+
+  // Lanzar todos los canales (ninguno bloquea si falla)
+  sendServerNotifications(reservationData);  // Resend, Telegram, WhatsApp
+  sendEmailJS(reservationData);              // EmailJS (cliente)
 
   return { id: ref.id };
 }
